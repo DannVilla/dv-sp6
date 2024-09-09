@@ -16,17 +16,45 @@ car_data = car_data.dropna(subset=['model_year'])
 car_data['model_year'] = car_data['model_year'].astype(int)
 ###
 
+'''
+# Anuncios de ventas de coches
+### Selecciona gráfico:
+'''
+
 table_checkbox = st.checkbox('Visualizar Datos')  # crea botón para la tabla
 # crear un botón para histograma
 hist_checkbox = st.checkbox('Construir histograma')
 # crear una casilla de verificación para grafico de dispersión
 disp_checkbox = st.checkbox('Construir un gráfico de dispersión')
 
-if table_checkbox:  # si la casilla de verificación está seleccionada
-    st.write(
-        '## Visualización de datos')  # mensaje al abrir botón
+if table_checkbox:
+    st.write('## Visualización de datos')
 
-    st.write(pd.DataFrame(car_data))  # Tabla de Datos
+    # Filtro por condición
+    condition_filter = st.multiselect(
+        'Seleccione condición de coche', options=car_data['condition'].unique())
+
+    # Filtro por precio
+    price_filter = st.slider('Rango de precio', int(car_data['price'].min()), int(
+        car_data['price'].max()), (int(car_data['price'].min()), int(car_data['price'].max())))
+
+    # Filtro por año del modelo
+    year_filter = st.slider('Rango de año del modelo', int(car_data['model_year'].min()), int(
+        car_data['model_year'].max()), (int(car_data['model_year'].min()), int(car_data['model_year'].max())))
+
+    # Aplicar los filtros
+    filtered_data = car_data[
+        (car_data['price'] >= price_filter[0]) & (car_data['price'] <= price_filter[1]) &
+        (car_data['model_year'] >= year_filter[0]) & (
+            car_data['model_year'] <= year_filter[1])
+    ]
+
+    if condition_filter:
+        filtered_data = filtered_data[filtered_data['condition'].isin(
+            condition_filter)]
+
+    # Mostrar la tabla filtrada
+    st.write(filtered_data)
 
 if hist_checkbox:  # si la casilla de verificación está seleccionada
     # escribir un mensaje
